@@ -4,20 +4,22 @@
 <html>
   <head>
     <title>Buy cool new product</title>
-    <link rel="stylesheet" href="style.css">
+    <link href="{% static 'PaymentApp/css/bootstrap.min.css' %}" rel="stylesheet">
     <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
     <script src="https://js.stripe.com/v3/"></script>
   </head>
   <body>
-    <section>
-      <div class="product">
-        <div class="description">
-          <h3>{{ item.name }}</h3>
-          <h5>${{ item.get_display_price }}</h5>
-        </div>
-      </div>
-      <button type="button" id="checkout-button">Checkout</button>
-    </section>
+
+
+    <div class="card" style="width: 18rem;">
+<!--  <img src="..." class="card-img-top" alt="...">-->
+  <div class="card-body">
+    <h5 class="card-title">{{ item.name }}, ${{ item.get_display_price }}</h5>
+    <p class="card-text">{{ item.description }}</p>
+    <button type="button" id="checkout-button" class="btn btn-primary">Купить</button>
+  </div>
+</div>
+
     {% csrf_token %}
   </body>
   <script type="text/javascript">

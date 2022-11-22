@@ -21,4 +21,5 @@ python3 StripeApp/manage.py migrate
 5. To run the local server and test the project, you need run command:
 python3 StripeApp/manage.py runserver
 
-6. Check it on 127.0.0.1:8000/landing
+6. Check it on 
+127.0.0.1:8000/landing

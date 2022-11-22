@@ -7,9 +7,10 @@ class Item(models.Model):
                             verbose_name='Наименование')
     description = models.TextField(max_length=300,
                                    verbose_name='Описание')
-    price = models.FloatField(default=0,
-                              verbose_name='Цена')
+    price = models.IntegerField(verbose_name='Цена')
 
     def __str__(self):
         return f"{self.name},  {self.price}"
 
+    def get_display_price(self):
+        return '{0:.2f}'.format(self.price / 100)

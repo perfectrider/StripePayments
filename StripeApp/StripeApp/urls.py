@@ -15,12 +15,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from PaymentApp.views import ItemLandingPageView
+from PaymentApp.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', ItemLandingPageView.as_view(), name='landing-page'),
-    # path('create-checkout-session/',
-    #      CreateCheckoutSessionView.as_view(),
-    #      name='create-checkout-session'),
+    path('landing/', ItemLandingPageView.as_view()),
+    path('create-checkout-session/<pk>/',
+         CreateCheckoutSessionView.as_view(),
+         name='create-checkout-session'),
+    path('cancel/', CancelView.as_view(), name='cancel'),
+    path('success/', SuccessView.as_view(), name='success'),
 ]

@@ -1,49 +1,63 @@
+from django.http import JsonResponse
 from StripeApp import settings
 from django.views import View
 from django.views.generic import TemplateView
-import json
-import os
 import stripe
+from .models import Item
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
-from flask import Flask, render_template, jsonify, request
+class CreateCheckoutSessionView(View):
+    def post(self, request, *args, **kwargs):
+        item_id = self.kwargs['pk']
+        item = Item.objects.get(id=item_id)
+        YOUR_DOMAIN = 'http://127.0.0.1:8000'
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[
+                {
+                    'price_data': {
+                        'currency': 'usd',
+                        'unit_amount': item.price,
+                        'product_data': {
+                            'name': item.name
+                        },
+                    },
+                    'quantity': 1,
+                },
+            ],
+            metadata={
+                "item_id": item.id
+            },
+            mode='payment',
+            success_url=YOUR_DOMAIN + '/success/',
+            cancel_url=YOUR_DOMAIN + '/cancel/',
+        )
+        return JsonResponse({
+            'id': checkout_session.id
+        })
 
-app = Flask(__name__, static_folder='public',
-            static_url_path='', template_folder='public')
+
+class SuccessView(TemplateView):
+    template_name = 'success.html'
+
+
+class CancelView(TemplateView):
+    template_name = 'cancel.html'
 
 
 class ItemLandingPageView(TemplateView):
     template_name = 'landing.html'
 
-    # class CreateCheckoutSessionView(View):
-
-
-def calculate_order_amount(items):
-    # Replace this constant with a calculation of the order's amount
-    # Calculate the order total on the server to prevent
-    # people from directly manipulating the amount on the client
-    return 1400
-
-
-@app.route('/create-payment-intent', methods=['POST'])
-def create_payment(self):
-    try:
-        data = json.loads(request.data)
-        # Create a PaymentIntent with the order amount and currency
-        intent = stripe.PaymentIntent.create(
-            amount=self.calculate_order_amount(data['items']),
-            currency='usd',
-            automatic_payment_methods={
-                'enabled': True,
-            },
-        )
-        return jsonify({
-            'clientSecret': intent['client_secret']
+    def get_context_data(self, **kwargs):
+        item = Item.objects.get(name='Test Item')
+        context = super(ItemLandingPageView, self).get_context_data(**kwargs)
+        context.update({
+            "item": item,
+            "STRIPE_PUBLIC_KEY": settings.STRIPE_PUBLIC_KEY
         })
-    except Exception as e:
-        return jsonify(error=str(e)), 403
+        return context
 
 
-if __name__ == '__main__':
-    app.run(port=4242)
+
+
